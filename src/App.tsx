@@ -22,7 +22,7 @@ function App(): React.JSX.Element {
             <Route path="/" element={<Home />} />
             <Route path="/urun/:id" element={<UrunDetay />} />
             <Route path="/sepet" element={<Sepet />} />
-            <Route path="/kategori/:isim" element={<Kategori />} />
+            <Route path="/kategori" element={<Kategori />} />
             <Route path="/giris" element={<Giris />} />
             <Route
               path="/admin"

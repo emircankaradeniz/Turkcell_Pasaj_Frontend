@@ -50,7 +50,8 @@ export default function Kategoriler() {
       {/* Üst kategori barı */}
       <div className="flex gap-6 overflow-x-auto whitespace-nowrap border-y py-2">
         {kategoriler.map((kat, i) => (
-          <div
+          <Link
+            to={`/kategori?kategori=${encodeURIComponent(kat.baslik)}`}
             key={i}
             className={`cursor-pointer font-semibold px-2 hover:text-yellow-600 ${
               acilan === kat.baslik ? "text-yellow-600" : ""
@@ -61,7 +62,7 @@ export default function Kategoriler() {
             }}
           >
             {kat.baslik}
-          </div>
+          </Link>
         ))}
       </div>
 
@@ -82,7 +83,11 @@ export default function Kategoriler() {
                       }`}
                       onMouseEnter={() => setAktifAlt(alt)}
                     >
-                      {alt}
+                      <Link
+                        to={`/kategori?altKategori=${encodeURIComponent(alt)}`}
+                      >
+                        {alt}
+                      </Link>
                     </li>
                   ))}
               </ul>
@@ -111,9 +116,7 @@ export default function Kategoriler() {
                       />
                       <div>
                         <p className="font-semibold">{urun.ad}</p>
-                        <p className="text-sm text-gray-500">
-                          {urun.aciklama}
-                        </p>
+                        <p className="text-sm text-gray-500">{urun.aciklama}</p>
                         <p className="text-blue-600 font-bold mt-2">
                           {urun.fiyat.toLocaleString()} ₺
                         </p>
@@ -121,7 +124,33 @@ export default function Kategoriler() {
                     </Link>
                   ))
               ) : (
-                <p className="text-gray-500">Alt kategori seçiniz...</p>
+                mockUrunListesi
+                  .filter(
+                    (u: Urun) =>
+                      u.kategori?.toLowerCase() ===
+                      acilan.toLowerCase()
+                  )
+                  .slice(0, 2)
+                  .map((urun) => (
+                    <Link
+                      to={`/urun/${urun.id}`}
+                      key={urun.id}
+                      className="border rounded shadow hover:shadow-lg p-4 flex gap-4 bg-white"
+                    >
+                      <img
+                        src={urun.gorsel}
+                        alt={urun.ad}
+                        className="w-24 h-24 object-contain"
+                      />
+                      <div>
+                        <p className="font-semibold">{urun.ad}</p>
+                        <p className="text-sm text-gray-500">{urun.aciklama}</p>
+                        <p className="text-blue-600 font-bold mt-2">
+                          {urun.fiyat.toLocaleString()} ₺
+                        </p>
+                      </div>
+                    </Link>
+                  ))
               )}
             </div>
           </div>

@@ -7,6 +7,9 @@ import mockUrunListesi from "../mock/mockUrunListesi";
 import { FaTruck, FaCreditCard, FaGift } from "react-icons/fa";
 import { Urun } from "../types/Urun";
 import Kategoriler from "../components/Kategoriler";
+import SanaOzelUrunler from "../components/SanaOzelUrunler";
+import EnIyiTeklifler from "../components/EnIyiTeklifler";
+import CokSatanlar from "../components/CokSatanlar";
 
 
 export default function Home() {
@@ -43,40 +46,12 @@ export default function Home() {
 
       <AramaKutusu arama={arama} setArama={setArama} />
 
-      <div className="flex flex-col md:flex-row gap-4 mt-6 mb-4">
-        <select
-          value={kategori}
-          onChange={(e: ChangeEvent<HTMLSelectElement>) => setKategori(e.target.value)}
-          className="border px-3 py-2 rounded w-full md:w-1/2"
-        >
-          {kategoriler.map((kat, i) => (
-            <option key={i} value={kat}>
-              {kat.charAt(0).toUpperCase() + kat.slice(1)}
-            </option>
-          ))}
-        </select>
+      
+      <SanaOzelUrunler />
 
-        <select
-          value={siralama}
-          onChange={(e: ChangeEvent<HTMLSelectElement>) => setSiralama(e.target.value)}
-          className="border px-3 py-2 rounded w-full md:w-1/2"
-        >
-          <option value="varsayilan">Varsayılan</option>
-          <option value="artan">Fiyat (Artan)</option>
-          <option value="azalan">Fiyat (Azalan)</option>
-        </select>
-      </div>
+      <EnIyiTeklifler />
 
-      <h2 className="text-2xl font-bold mt-4 mb-4">Ürünler</h2>
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-        {filtreliUrunler.length === 0 ? (
-          <p className="text-gray-600">Aradığınız ürün bulunamadı.</p>
-        ) : (
-          filtreliUrunler.map((urun) => (
-            <UrunCard key={urun.id} urun={urun} />
-          ))
-        )}
-      </div>
+      <CokSatanlar />
     </div>
   );
 }
