@@ -6,6 +6,7 @@ import AramaKutusu from "../components/AramaKutusu";
 import mockUrunListesi from "../mock/mockUrunListesi";
 import { FaTruck, FaCreditCard, FaGift } from "react-icons/fa";
 import { Urun } from "../types/Urun";
+import Kategoriler from "../components/Kategoriler";
 
 
 export default function Home() {
@@ -31,6 +32,7 @@ export default function Home() {
 
   return (
     <div className="p-4 max-w-screen-xl mx-auto">
+      <Kategoriler />
       <Slider />
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mt-6">
