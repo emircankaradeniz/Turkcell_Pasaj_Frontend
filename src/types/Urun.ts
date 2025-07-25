@@ -5,5 +5,6 @@ export interface Urun {
   fiyat: number;
   gorsel?: string;
   kategori: string;
+  altKategori?: string;
   adet?: number;
 }
