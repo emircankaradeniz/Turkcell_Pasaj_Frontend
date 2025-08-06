@@ -8,13 +8,13 @@ export default function Sepet() {
   const [kampanyaKodu, setKampanyaKodu] = useState("");
 
   const toplam = sepet.reduce((acc, u) => acc + u.fiyat * (u.adet ?? 1), 0);
-  const indirim = toplam > 0 ? 500 : 0; // örnek indirim
+  const indirim = toplam > 0 ? 500 : 0;
   const odemeTutari = toplam - indirim;
 
   return (
     <div className="px-2 sm:px-4">
       <div className="max-w-6xl mx-auto p-4 flex flex-col lg:flex-row gap-6">
-        {/* SOL TARAF: Ürünler */}
+        {/* SOL TARAF */}
         <div className="flex-1">
           <h1 className="text-xl font-bold mb-4">Sepetim</h1>
 
@@ -22,9 +22,9 @@ export default function Sepet() {
             <p>Sepetiniz boş.</p>
           ) : (
             <div className="space-y-4">
-              {sepet.map((u) => (
+              {sepet.map((u, index) => (
                 <div
-                  key={u.id}
+                  key={`${u.id}-${u.secilenSatici?.ad}-${index}`}
                   className="bg-white border rounded-lg p-4 flex flex-col sm:flex-row gap-4 items-center sm:items-start"
                 >
                   <img
@@ -35,6 +35,11 @@ export default function Sepet() {
                   <div className="flex-1 text-center sm:text-left">
                     <p className="font-semibold">{u.ad}</p>
                     <p className="text-sm text-gray-500">{u.aciklama}</p>
+                    {u.secilenSatici?.ad && (
+                      <p className="text-sm mt-1 text-blue-600">
+                        Satıcı: {u.secilenSatici.ad}
+                      </p>
+                    )}
                     <p className="text-sm mt-1">
                       Birim Fiyat: {u.fiyat.toLocaleString()} TL
                     </p>
@@ -43,14 +48,26 @@ export default function Sepet() {
                   {/* Adet */}
                   <div className="flex items-center border rounded">
                     <button
-                      onClick={() => adetGuncelle(u.id, (u.adet ?? 1) - 1)}
+                      onClick={() =>
+                        adetGuncelle(
+                          u.id,
+                          (u.adet ?? 1) - 1,
+                          u.secilenSatici?.ad
+                        )
+                      }
                       className="px-3 py-1 hover:bg-gray-100"
                     >
                       -
                     </button>
                     <span className="px-3">{u.adet ?? 1}</span>
                     <button
-                      onClick={() => adetGuncelle(u.id, (u.adet ?? 1) + 1)}
+                      onClick={() =>
+                        adetGuncelle(
+                          u.id,
+                          (u.adet ?? 1) + 1,
+                          u.secilenSatici?.ad
+                        )
+                      }
                       className="px-3 py-1 hover:bg-gray-100"
                     >
                       +
@@ -64,7 +81,9 @@ export default function Sepet() {
 
                   {/* Sil */}
                   <button
-                    onClick={() => sepettenCikar(u.id)}
+                    onClick={() =>
+                      sepettenCikar(u.id, u.secilenSatici?.ad)
+                    }
                     className="text-red-500 hover:underline"
                   >
                     ×
@@ -75,7 +94,7 @@ export default function Sepet() {
           )}
         </div>
 
-        {/* SAĞ TARAF: Sipariş Özeti */}
+        {/* SAĞ TARAF */}
         <div className="w-full lg:w-80 bg-white border rounded-lg p-4 h-fit space-y-4">
           <h2 className="font-bold text-lg">
             Sipariş Özeti ({sepet.length} Ürün)

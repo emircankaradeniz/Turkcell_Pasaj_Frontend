@@ -15,10 +15,10 @@ import {
 interface SepetContextType {
   sepet: Urun[];
   sepeteEkle: (urun: Urun) => void;
-  adetArttir: (id: string) => void;
-  adetAzalt: (id: string) => void;
-  adetGuncelle: (id: string, yeniAdet: number) => void; // ✅ eklendi
-  sepettenCikar: (id: string) => void;
+  adetArttir: (id: string, saticiAdi?: string) => void;
+  adetAzalt: (id: string, saticiAdi?: string) => void;
+  adetGuncelle: (id: string, yeniAdet: number, saticiAdi?: string) => void;
+  sepettenCikar: (id: string, saticiAdi?: string) => void;
 }
 
 const SepetContext = createContext<SepetContextType>({} as SepetContextType);
@@ -27,7 +27,7 @@ export function SepetProvider({ children }: { children: ReactNode }) {
   const { kullanici } = useAuth();
   const [sepet, setSepet] = useState<Urun[]>([]);
 
-  // 📌 Anlık olarak Firestore'dan sepeti çek
+  // 📌 Firestore’dan anlık sepet verisi
   useEffect(() => {
     if (!kullanici) {
       setSepet([]);
@@ -39,38 +39,61 @@ export function SepetProvider({ children }: { children: ReactNode }) {
         const data = d.data() as Urun;
         return { ...data, id: d.id };
       });
-
       setSepet(veri);
     });
     return () => unsubscribe();
   }, [kullanici]);
 
+  // 📌 Firestore belge ID oluşturucu (ürün + satıcı)
+  const getDocId = (urun: Urun) => {
+    return urun.secilenSatici
+      ? `${urun.id}_${urun.secilenSatici.ad}`
+      : urun.id;
+  };
+
   // 📌 Sepete ekle
   const sepeteEkle = async (urun: Urun) => {
     if (!kullanici) return;
-    const ref = doc(db, "users", kullanici.uid, "cart", urun.id);
+    const ref = doc(db, "users", kullanici.uid, "cart", getDocId(urun));
     await setDoc(ref, { ...urun, adet: 1 });
   };
 
   // 📌 Adet arttır
-  const adetArttir = async (id: string) => {
+  const adetArttir = async (id: string, saticiAdi?: string) => {
     if (!kullanici) return;
-    const ref = doc(db, "users", kullanici.uid, "cart", id);
+    const ref = doc(
+      db,
+      "users",
+      kullanici.uid,
+      "cart",
+      saticiAdi ? `${id}_${saticiAdi}` : id
+    );
     await updateDoc(ref, { adet: increment(1) });
   };
 
   // 📌 Adet azalt
-  const adetAzalt = async (id: string) => {
+  const adetAzalt = async (id: string, saticiAdi?: string) => {
     if (!kullanici) return;
-    const ref = doc(db, "users", kullanici.uid, "cart", id);
+    const ref = doc(
+      db,
+      "users",
+      kullanici.uid,
+      "cart",
+      saticiAdi ? `${id}_${saticiAdi}` : id
+    );
     await updateDoc(ref, { adet: increment(-1) });
   };
 
-  // 📌 Adeti doğrudan güncelle (0 veya altına düşerse ürünü siler)
-  const adetGuncelle = async (id: string, yeniAdet: number) => {
+  // 📌 Adet güncelle
+  const adetGuncelle = async (id: string, yeniAdet: number, saticiAdi?: string) => {
     if (!kullanici) return;
-    const ref = doc(db, "users", kullanici.uid, "cart", id);
-
+    const ref = doc(
+      db,
+      "users",
+      kullanici.uid,
+      "cart",
+      saticiAdi ? `${id}_${saticiAdi}` : id
+    );
     if (yeniAdet <= 0) {
       await deleteDoc(ref);
     } else {
@@ -79,9 +102,11 @@ export function SepetProvider({ children }: { children: ReactNode }) {
   };
 
   // 📌 Sepetten çıkar
-  const sepettenCikar = async (id: string) => {
+  const sepettenCikar = async (id: string, saticiAdi?: string) => {
     if (!kullanici) return;
-    await deleteDoc(doc(db, "users", kullanici.uid, "cart", id));
+    await deleteDoc(
+      doc(db, "users", kullanici.uid, "cart", saticiAdi ? `${id}_${saticiAdi}` : id)
+    );
   };
 
   return (
@@ -91,7 +116,7 @@ export function SepetProvider({ children }: { children: ReactNode }) {
         sepeteEkle,
         adetArttir,
         adetAzalt,
-        adetGuncelle, // ✅ buraya eklendi
+        adetGuncelle,
         sepettenCikar
       }}
     >

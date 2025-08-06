@@ -1,3 +1,12 @@
+export interface Satici {
+  ad: string;
+  puan: number;
+  fiyat: number;
+  kargo: string;
+  ucretsizKargo: boolean;
+  etiket: string;
+}
+
 export interface Urun {
   id: string;
   ad: string;
@@ -10,4 +19,9 @@ export interface Urun {
   altKategoriId?: string;
   adet?: number;
   renk?: string;
+  secilenSatici?: Satici;
+  saticilar?: Satici[]; // ✅ diğer satıcılar
+
+  // ✅ Yeni ekledik
+  ozellikler?: Record<string, string>; // teknik özellikler
 }

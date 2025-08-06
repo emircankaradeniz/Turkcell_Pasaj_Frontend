@@ -4,6 +4,7 @@ import { Urun } from "../types/Product";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 import { db } from "../firebase";
+import AdminSorular from "../components/AdminQuestions";
 import {
   collection,
   addDoc,
@@ -25,10 +26,33 @@ interface AltKategori {
   kategoriId: string;
 }
 
+interface Yorum {
+  id?: string;
+  urunId: string;
+  kullaniciId: string;
+  kullaniciAd: string;
+  yorum: string;
+  puan: number;
+  tarih?: any;
+}
+
+// 🔹 Satıcı tipi
+interface Satici {
+  ad: string;
+  puan: number;
+  kargo: string;
+  ucretsizKargo: boolean;
+  etiket: string;
+}
+
 export default function AdminPanel() {
   const [urunler, setUrunler] = useState<Urun[]>([]);
   const [kategoriler, setKategoriler] = useState<Kategori[]>([]);
   const [altKategoriler, setAltKategoriler] = useState<AltKategori[]>([]);
+
+  // 🔹 Satıcı listesi ve seçilen satıcılar
+  const [saticilar, setSaticilar] = useState<Satici[]>([]);
+  const [seciliSaticilar, setSeciliSaticilar] = useState<Satici[]>([]);
 
   const [form, setForm] = useState<Omit<Urun, "id">>({
     ad: "",
@@ -39,7 +63,9 @@ export default function AdminPanel() {
     kategoriId: "",
     altKategori: "",
     altKategoriId: "",
-    adet: 0
+    adet: 0,
+    ozellikler: {},
+    saticilar: [] // 🔹 eklendi
   });
 
   const [duzenlenenUrunId, setDuzenlenenUrunId] = useState<string | null>(null);
@@ -57,15 +83,14 @@ export default function AdminPanel() {
       const docData = d.data() as any;
       return {
         id: d.id,
-        ad: docData.baslik, // Firestore'daki 'baslik' alanı
+        ad: docData.baslik,
         altKategoriler: docData.altKategoriler || []
       };
     });
-    console.log("📌 Gelen kategoriler:", data);
     setKategoriler(data);
   };
 
-  // 🔹 Alt kategorileri getir (koleksiyon içinden)
+  // 🔹 Alt kategorileri getir
   const altKategorileriGetir = (kategoriId: string) => {
     const seciliKategori = kategoriler.find((k) => k.id === kategoriId);
     if (seciliKategori) {
@@ -81,6 +106,13 @@ export default function AdminPanel() {
     }
   };
 
+  // 🔹 Satıcıları getir (Firestore → saticilar koleksiyonu)
+  const saticilariGetir = async () => {
+    const snap = await getDocs(collection(db, "saticilar"));
+    const liste = snap.docs.map((d) => d.data() as Satici);
+    setSaticilar(liste);
+  };
+
   // 🔹 Ürünleri getir
   const urunleriGetir = async () => {
     const snap = await getDocs(collection(db, "urunler"));
@@ -94,6 +126,7 @@ export default function AdminPanel() {
 
   useEffect(() => {
     kategorileriGetir();
+    saticilariGetir(); // 🔹 Satıcıları da çek
     urunleriGetir();
   }, []);
 
@@ -104,6 +137,18 @@ export default function AdminPanel() {
 
     if (e.target.name === "kategoriId") {
       altKategorileriGetir(e.target.value);
+    }
+  };
+
+  // 🔹 Satıcı seçim toggle
+  const handleSaticiSec = (ad: string) => {
+    const secili = saticilar.find((s) => s.ad === ad);
+    if (!secili) return;
+
+    if (seciliSaticilar.some((s) => s.ad === ad)) {
+      setSeciliSaticilar(seciliSaticilar.filter((s) => s.ad !== ad));
+    } else {
+      setSeciliSaticilar([...seciliSaticilar, secili]);
     }
   };
 
@@ -123,7 +168,8 @@ export default function AdminPanel() {
         ...form,
         fiyat: Number(form.fiyat),
         kategori: kategoriAd,
-        altKategori: altKategoriAd
+        altKategori: altKategoriAd,
+        saticilar: seciliSaticilar // 🔹 seçili satıcıları kaydet
       });
       setDuzenlenenUrunId(null);
     } else {
@@ -131,7 +177,8 @@ export default function AdminPanel() {
         ...form,
         fiyat: Number(form.fiyat),
         kategori: kategoriAd,
-        altKategori: altKategoriAd
+        altKategori: altKategoriAd,
+        saticilar: seciliSaticilar // 🔹 seçili satıcıları kaydet
       });
     }
 
@@ -144,8 +191,11 @@ export default function AdminPanel() {
       kategoriId: "",
       altKategori: "",
       altKategoriId: "",
-      adet: 0
+      adet: 0,
+      ozellikler: {},
+      saticilar: []
     });
+    setSeciliSaticilar([]);
     urunleriGetir();
   };
 
@@ -164,33 +214,40 @@ export default function AdminPanel() {
       kategoriId: urun.kategoriId,
       altKategori: urun.altKategori || "",
       altKategoriId: urun.altKategoriId || "",
-      adet: urun.adet || 0
+      adet: urun.adet || 0,
+      ozellikler: urun.ozellikler || {},
+      saticilar: urun.saticilar || []
     });
+    setSeciliSaticilar(urun.saticilar || []);
     setDuzenlenenUrunId(urun.id);
     altKategorileriGetir(urun.kategoriId);
   };
 
-  // 🔹 Filtreleme
-  let filtrelenmisUrunler = urunler
-    .filter(
-      (u) => aktifKategoriId === "tumu" || u.kategoriId === aktifKategoriId
-    )
-    .filter((u) =>
-      u.ad.toLowerCase().includes(aramaTerimi.toLowerCase())
-    );
+  // 🔹 Özellik ekleme & silme
+  const [yeniOzellik, setYeniOzellik] = useState({ key: "", value: "" });
 
-  if (sirala === "artan") {
-    filtrelenmisUrunler.sort((a, b) => a.fiyat - b.fiyat);
-  } else if (sirala === "azalan") {
-    filtrelenmisUrunler.sort((a, b) => b.fiyat - a.fiyat);
-  }
+  const ozellikEkle = () => {
+    if (!yeniOzellik.key || !yeniOzellik.value) return;
+    setForm((prev) => ({
+      ...prev,
+      ozellikler: {
+        ...prev.ozellikler,
+        [yeniOzellik.key]: yeniOzellik.value
+      }
+    }));
+    setYeniOzellik({ key: "", value: "" });
+  };
 
-  const toplamUrunSayisi = filtrelenmisUrunler.length;
-  const toplamFiyat = filtrelenmisUrunler.reduce((acc, u) => acc + u.fiyat, 0);
+  const ozellikSil = (key: string) => {
+    const yeni = { ...form.ozellikler };
+    delete yeni[key];
+    setForm((prev) => ({ ...prev, ozellikler: yeni }));
+  };
+
+  const toplamUrunSayisi = urunler.length;
+  const toplamFiyat = urunler.reduce((acc, u) => acc + u.fiyat, 0);
   const ortalamaFiyat =
-    toplamUrunSayisi > 0
-      ? (toplamFiyat / toplamUrunSayisi).toFixed(2)
-      : "0";
+    toplamUrunSayisi > 0 ? (toplamFiyat / toplamUrunSayisi).toFixed(2) : "0";
 
   if (!kullanici) {
     navigate("/giris");
@@ -266,107 +323,88 @@ export default function AdminPanel() {
           ))}
         </select>
 
+        {/* Satıcılar */}
+        <div className="sm:col-span-2 border p-3 rounded">
+          <h3 className="font-semibold mb-2">Satıcılar</h3>
+          <div className="flex flex-wrap gap-2">
+            {saticilar.map((s, i) => (
+              <button
+                type="button"
+                key={i}
+                onClick={() => handleSaticiSec(s.ad)}
+                className={`px-3 py-1 rounded border ${
+                  seciliSaticilar.some((sec) => sec.ad === s.ad)
+                    ? "bg-blue-600 text-white"
+                    : "bg-white text-gray-700"
+                }`}
+              >
+                {s.ad}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Özellikler */}
+        <div className="sm:col-span-2 border p-3 rounded">
+          <h3 className="font-semibold mb-2">Ürün Özellikleri</h3>
+
+          {form.ozellikler && Object.keys(form.ozellikler).length > 0 && (
+            <ul className="mb-3 space-y-1">
+              {Object.entries(form.ozellikler).map(([key, value]) => (
+                <li
+                  key={key}
+                  className="flex justify-between items-center bg-gray-50 p-2 rounded"
+                >
+                  <span>
+                    <b>{key}:</b> {value}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => ozellikSil(key)}
+                    className="text-red-500 hover:underline text-sm"
+                  >
+                    Sil
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-2">
+            <input
+              type="text"
+              placeholder="Özellik Adı"
+              value={yeniOzellik.key}
+              onChange={(e) =>
+                setYeniOzellik({ ...yeniOzellik, key: e.target.value })
+              }
+              className="border p-2 rounded flex-1"
+            />
+            <input
+              type="text"
+              placeholder="Değer"
+              value={yeniOzellik.value}
+              onChange={(e) =>
+                setYeniOzellik({ ...yeniOzellik, value: e.target.value })
+              }
+              className="border p-2 rounded flex-1"
+            />
+            <button
+              type="button"
+              onClick={ozellikEkle}
+              className="bg-blue-600 text-white px-4 rounded"
+            >
+              Ekle
+            </button>
+          </div>
+        </div>
+
         <button className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 w-full sm:col-span-2">
           {duzenlenenUrunId ? "Güncelle" : "Ürünü Ekle"}
         </button>
       </form>
-
-      {/* Filtreler */}
-      <div className="flex flex-col sm:flex-row flex-wrap gap-4 mb-6">
-        <select
-          value={aktifKategoriId}
-          onChange={(e) => setAktifKategoriId(e.target.value)}
-          className="border px-3 py-1 rounded w-full sm:w-auto"
-        >
-          <option value="tumu">Tüm Kategoriler</option>
-          {kategoriler.map((kat) => (
-            <option key={kat.id} value={kat.id}>
-              {kat.ad}
-            </option>
-          ))}
-        </select>
-
-        <select
-          value={sirala}
-          onChange={(e) => setSirala(e.target.value)}
-          className="border px-3 py-1 rounded w-full sm:w-auto"
-        >
-          <option value="varsayilan">Sıralama</option>
-          <option value="artan">Fiyat: Artan</option>
-          <option value="azalan">Fiyat: Azalan</option>
-        </select>
-
-        <input
-          type="text"
-          value={aramaTerimi}
-          onChange={(e) => setAramaTerimi(e.target.value)}
-          placeholder="Ürün ara..."
-          className="border px-3 py-2 rounded w-full sm:flex-1"
-        />
-
-        <button
-          onClick={() => {
-            setAktifKategoriId("tumu");
-            setSirala("varsayilan");
-            setAramaTerimi("");
-          }}
-          className="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400 w-full sm:w-auto"
-        >
-          Temizle
-        </button>
-      </div>
-
-      {/* İstatistikler */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6 text-center">
-        <div className="bg-blue-100 p-4 rounded shadow">
-          <p className="text-lg font-semibold">Toplam Ürün</p>
-          <p className="text-2xl">{toplamUrunSayisi}</p>
-        </div>
-        <div className="bg-green-100 p-4 rounded shadow">
-          <p className="text-lg font-semibold">Toplam Fiyat</p>
-          <p className="text-2xl">
-            {toplamFiyat.toLocaleString("tr-TR")} ₺
-          </p>
-        </div>
-        <div className="bg-purple-100 p-4 rounded shadow">
-          <p className="text-lg font-semibold">Ortalama Fiyat</p>
-          <p className="text-2xl">{ortalamaFiyat} ₺</p>
-        </div>
-      </div>
-
-      {/* Ürün listesi */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {filtrelenmisUrunler.map((urun) => (
-          <div key={urun.id} className="relative">
-            <UrunCard urun={urun} />
-            <div className="absolute top-2 right-2 flex gap-2">
-              <button
-                onClick={() => urunDuzenle(urun)}
-                className="bg-yellow-500 text-white px-2 py-1 rounded text-xs"
-              >
-                Düzenle
-              </button>
-              <button
-                onClick={() => urunSil(urun.id)}
-                className="bg-red-600 text-white px-2 py-1 rounded text-xs"
-              >
-                Sil
-              </button>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Çıkış */}
-      <button
-        onClick={() => {
-          cikisYap();
-          navigate("/");
-        }}
-        className="bg-red-500 text-white py-2 px-4 rounded mt-4 w-full sm:w-auto"
-      >
-        Çıkış Yap
-      </button>
+      <AdminSorular/>
+            
     </div>
   );
 }
