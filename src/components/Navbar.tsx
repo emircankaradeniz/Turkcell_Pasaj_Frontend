@@ -22,11 +22,11 @@ export default function Navbar() {
   };
 
   return (
-    <div className="p-4 max-w-screen-xl mx-auto bg-white shadow-sm border-b sticky top-0 z-50">
+    <div className="bg-white shadow-sm border-b">
       {/* Üst Menü */}
-      <div className="flex justify-between items-center px-6 py-2 text-sm text-gray-600">
+      <div className="hidden lg:flex justify-between items-center max-w-screen-xl mx-auto px-4 py-2 text-sm text-gray-600">
         <span className="text-gray-400">turkcell.com.tr</span>
-        <div className="flex gap-4">
+        <div className="flex gap-4 flex-wrap">
           <Link to="/favoriler">Favorilerim</Link>
           <a href="https://www.turkcell.com.tr/pasaj/kampanyalar/cihazlar">Kampanyalar</a>
           <a href="https://www.turkcell.com.tr/destek/online-alisveris">Yardım</a>
@@ -38,36 +38,44 @@ export default function Navbar() {
       </div>
 
       {/* Logo + Arama + Kullanıcı + Sepet */}
-      <div className="p-4 max-w-screen-xl mx-auto flex items-center justify-between px-6 py-4">
+      <div className="max-w-screen-xl mx-auto px-4 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         {/* Logo */}
-        <Link to="/" className="flex items-center gap-2">
-          <img src="/images/PasajLogo.png" alt="logo" className="w-[100px]" />
-        </Link>
+        <div className="flex justify-between items-center">
+          <Link to="/" className="flex items-center gap-2">
+            <img src="/images/PasajLogo.png" alt="logo" className="w-[100px]" />
+          </Link>
+        </div>
 
         {/* Arama Kutusu */}
         <AramaKutusu />
 
         {/* Kullanıcı ve Sepet */}
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-3">
           {!kullanici ? (
-            <Link to="/giris" className="flex items-center gap-2 border px-4 py-2 rounded">
+            <Link
+              to="/giris"
+              className="flex items-center gap-2 border px-3 py-2 rounded text-sm"
+            >
               <FaUser />
-              <span>Giriş Yap</span>
+              <span className="hidden sm:inline">Giriş Yap</span>
             </Link>
           ) : (
-            <Link to="/hesap" className="flex items-center gap-2 border px-4 py-2 rounded">
+            <Link
+              to="/hesap"
+              className="flex items-center gap-2 border px-3 py-2 rounded text-sm"
+            >
               <FaUser />
-              <span>Hesabım</span>
+              <span className="hidden sm:inline">Hesabım</span>
             </Link>
           )}
 
           {/* Sepet Butonu */}
           <button
             onClick={handleSepetTiklama}
-            className="relative bg-yellow-400 px-6 py-2 rounded flex items-center gap-2 font-semibold text-black"
+            className="relative bg-yellow-400 px-4 py-2 rounded flex items-center gap-1 font-semibold text-black text-sm"
           >
             <FaShoppingCart />
-            Sepet
+            <span className="hidden sm:inline">Sepet</span>
             {toplamAdet > 0 && (
               <span className="absolute -top-2 -right-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full">
                 {toplamAdet}
@@ -76,8 +84,10 @@ export default function Navbar() {
           </button>
         </div>
       </div>
-      <div className="p-4 max-w-screen-xl mx-auto">
-            <Kategoriler />
+
+      {/* Kategoriler */}
+      <div className="max-w-screen-xl mx-auto px-4 py-2">
+        <Kategoriler />
       </div>
     </div>
   );

@@ -49,7 +49,7 @@ function PrevArrow(props: any) {
   const { onClick } = props;
   return (
     <button
-      className="absolute left-[-20px] top-1/2 -translate-y-1/2 bg-white rounded-full shadow p-2 z-10"
+      className="hidden sm:flex absolute left-[-20px] top-1/2 -translate-y-1/2 bg-white rounded-full shadow p-2 z-10 hover:bg-gray-100"
       onClick={onClick}
     >
       <FaChevronLeft size={20} />
@@ -62,7 +62,7 @@ function NextArrow(props: any) {
   const { onClick } = props;
   return (
     <button
-      className="absolute right-[-20px] top-1/2 -translate-y-1/2 bg-white rounded-full shadow p-2 z-10"
+      className="hidden sm:flex absolute right-[-20px] top-1/2 -translate-y-1/2 bg-white rounded-full shadow p-2 z-10 hover:bg-gray-100"
       onClick={onClick}
     >
       <FaChevronRight size={20} />
@@ -96,7 +96,7 @@ export default function KacirilmayacakFirsatlar() {
   };
 
   return (
-    <div className="w-full max-w-screen-xl mx-auto mt-6 relative">
+    <div className="w-full max-w-screen-xl mx-auto mt-6 relative px-2 sm:px-0">
       <h2 className="text-2xl font-bold mb-4">Kaçırılmayacak Fırsatlar</h2>
       <Slider {...settings}>
         {kampanyalar.map((item, idx) => (

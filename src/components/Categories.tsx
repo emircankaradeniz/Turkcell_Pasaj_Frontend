@@ -18,6 +18,7 @@ export default function Kategoriler() {
   const [acilan, setAcilan] = useState<string | null>(null);
   const [aktifAlt, setAktifAlt] = useState<string | null>(null);
   const [urunler, setUrunler] = useState<Urun[]>([]);
+  const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1024;
 
   // Firestore'dan ürünleri çek
   useEffect(() => {
@@ -36,8 +37,10 @@ export default function Kategoriler() {
     <div
       className="mt-4 border-b relative"
       onMouseLeave={() => {
-        setAcilan(null);
-        setAktifAlt(null);
+        if (isDesktop) {
+          setAcilan(null);
+          setAktifAlt(null);
+        }
       }}
     >
       {/* Üst kategori barı */}
@@ -50,8 +53,10 @@ export default function Kategoriler() {
               acilan === kat.baslik ? "text-yellow-600" : ""
             }`}
             onMouseEnter={() => {
-              setAcilan(kat.baslik);
-              setAktifAlt(null);
+              if (isDesktop) {
+                setAcilan(kat.baslik);
+                setAktifAlt(null);
+              }
             }}
           >
             {kat.baslik}
@@ -59,8 +64,8 @@ export default function Kategoriler() {
         ))}
       </div>
 
-      {/* Genişleyen panel */}
-      {acilan && (
+      {/* Genişleyen panel (sadece masaüstünde gösterilecek) */}
+      {isDesktop && acilan && (
         <div className="absolute left-0 w-full z-50 bg-white border-t shadow-md transition-all duration-300">
           <div className="grid grid-cols-4 gap-6 p-6">
             {/* Sol: Alt Kategoriler */}
@@ -74,9 +79,13 @@ export default function Kategoriler() {
                       className={`cursor-pointer font-medium hover:text-blue-600 ${
                         aktifAlt === alt ? "text-blue-600" : ""
                       }`}
-                      onMouseEnter={() => setAktifAlt(alt)}
+                      onMouseEnter={() => {
+                        if (isDesktop) setAktifAlt(alt);
+                      }}
                     >
-                      <Link to={`/kategori?altKategori=${encodeURIComponent(alt)}`}>
+                      <Link
+                        to={`/kategori?altKategori=${encodeURIComponent(alt)}`}
+                      >
                         {alt}
                       </Link>
                     </li>
@@ -87,8 +96,13 @@ export default function Kategoriler() {
             {/* Sağ: Ürün Kutuları */}
             <div className="col-span-3 grid sm:grid-cols-2 gap-4">
               {(aktifAlt
-                ? urunler.filter((u) => u.altKategori?.toLowerCase() === aktifAlt.toLowerCase())
-                : urunler.filter((u) => u.kategori?.toLowerCase() === acilan.toLowerCase())
+                ? urunler.filter(
+                    (u) =>
+                      u.altKategori?.toLowerCase() === aktifAlt.toLowerCase()
+                  )
+                : urunler.filter(
+                    (u) => u.kategori?.toLowerCase() === acilan.toLowerCase()
+                  )
               )
                 .slice(0, 2)
                 .map((urun) => (

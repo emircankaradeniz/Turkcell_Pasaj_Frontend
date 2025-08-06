@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useFavori } from "../context/FavoriteContext";
 import { FaHeart, FaRegHeart } from "react-icons/fa";
 import { collection, getDocs, query, limit } from "firebase/firestore";
-import { db } from "../firebase"; // kendi firebase config yoluna göre düzenle
+import { db } from "../firebase";
 
 export default function EnIyiTeklifler() {
   const [teklifler, setTeklifler] = useState<Urun[]>([]);
@@ -13,7 +13,7 @@ export default function EnIyiTeklifler() {
   useEffect(() => {
     const urunleriGetir = async () => {
       try {
-        const q = query(collection(db, "urunler"), limit(4)); // en fazla 4 ürün
+        const q = query(collection(db, "urunler"), limit(4));
         const snapshot = await getDocs(q);
         const veri: Urun[] = snapshot.docs.map((doc) => ({
           id: doc.id,
@@ -24,14 +24,13 @@ export default function EnIyiTeklifler() {
         console.error("Ürünler çekilirken hata oluştu:", err);
       }
     };
-
     urunleriGetir();
   }, []);
 
   return (
     <div className="my-12">
       <h2 className="text-2xl font-bold mb-6 px-4">En İyi Teklifler</h2>
-      <div className="grid sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 px-2 sm:px-4">
         {teklifler.map((urun) => {
           const favorideMi = favoriler.some((f) => f.id === urun.id);
           return (
@@ -57,12 +56,14 @@ export default function EnIyiTeklifler() {
                 <img
                   src={urun.gorsel}
                   alt={urun.ad}
-                  className="w-full h-52 object-contain p-4"
+                  className="w-full h-48 sm:h-52 md:h-56 object-contain p-4"
                 />
 
                 {/* Başlık ve Açıklama */}
                 <div className="p-4">
-                  <h3 className="text-base font-semibold">{urun.ad}</h3>
+                  <h3 className="text-base font-semibold line-clamp-2 min-h-[3rem]">
+                    {urun.ad}
+                  </h3>
 
                   {/* Yıldız ve Puan */}
                   <div className="flex items-center gap-2 mt-2">

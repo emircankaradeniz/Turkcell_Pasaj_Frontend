@@ -12,6 +12,7 @@ import NedenPasaj from "../components/WhyPasajFooter"
 import PasajLimitProduct from "../components/PasajLimitProduct"
 import Campaigns from "../components/Campaigns"
 import Firsatlar from "../components/UnmissableOpportunities"
+import SonIncelenenler from "../components/RecentlyViewed";
 
 export default function Home() {
   const { kullanici } = useAuth();
@@ -86,18 +87,7 @@ export default function Home() {
         <br/>
         <Firsatlar />
         <br/>
-        {recentlyViewed.length > 0 && (
-          <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4">Son İncelenenler</h2>
-            <div className="flex gap-4 overflow-x-auto pb-2">
-              {recentlyViewed.map((urun) => (
-                <div key={urun.id} className="min-w-[200px]">
-                  <UrunCard urun={urun} />
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        <SonIncelenenler/>
         <br/>
         
       </div>

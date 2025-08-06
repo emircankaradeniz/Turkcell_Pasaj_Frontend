@@ -23,7 +23,7 @@ const sliderImages: string[] = [
 
 export default function Slider(): React.JSX.Element {
   return (
-    <div className="w-full max-w-screen-xl mx-auto mt-4">
+    <div className="w-full max-w-screen-xl mx-auto mt-4 px-2 sm:px-4">
       <Swiper
         modules={[Autoplay, Pagination]}
         autoplay={{ delay: 3000 }}
@@ -36,7 +36,7 @@ export default function Slider(): React.JSX.Element {
             <img
               src={img}
               alt={`slide-${i}`}
-              className="w-full object-cover h-[500px]"
+              className="w-full object-cover h-40 sm:h-64 md:h-96 lg:h-[500px]"
             />
           </SwiperSlide>
         ))}

@@ -18,18 +18,18 @@ export default function Kampanyalar() {
   ];
 
   return (
-    <div className="w-full max-w-screen-xl mx-auto mt-6">
+    <div className="w-full max-w-screen-xl mx-auto mt-6 px-2 sm:px-4">
       <h2 className="text-2xl font-bold mb-4">Kampanyalar</h2>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Sol sütun (2 resim) */}
-        <div className="col-span-2 flex flex-col gap-4">
+        <div className="flex flex-col gap-4 md:col-span-2">
           {kampanyalar.slice(0, 2).map((item, idx) => (
             <a key={idx} href={item.link} target="_blank" rel="noopener noreferrer">
               <img
                 src={item.src}
                 alt={item.alt}
-                className="rounded-lg w-full cursor-pointer hover:opacity-90 transition"
+                className="rounded-lg w-full object-cover cursor-pointer hover:opacity-90 transition"
               />
             </a>
           ))}

@@ -28,38 +28,31 @@ export default function SignUp() {
 
 
   return (
-    <div className="max-w-md mx-auto mt-10 bg-white p-6 rounded shadow">
-      <br/>
-      <br/>
-      <br/>
-      <br/>
-      <h1 className="text-xl font-bold mb-4">Kayıt Ol</h1>
-      <form onSubmit={handleSubmit} className="grid gap-4">
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
-          className="border p-2 rounded"
-        />
-        <input
-          type="password"
-          placeholder="Şifre"
-          value={sifre}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setSifre(e.target.value)}
-          className="border p-2 rounded"
-        />
-        <button className="bg-green-600 text-white py-2 rounded hover:bg-green-700">
-          Kaydol
-        </button>
-      </form>
-      <br/>
-      <br/>
-      <br/>
-      <br/><br/>
-      <br/>
-      <br/>
-      <br/>
+    <div className="flex items-center justify-center min-h-screen p-4">
+      <div className="w-full max-w-md bg-white p-6 rounded shadow">
+        <h1 className="text-2xl font-bold mb-6 text-center">Kayıt Ol</h1>
+        <form onSubmit={handleSubmit} className="grid gap-4">
+          <input
+            type="email"
+            placeholder="Email"
+            value={email}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setEmail(e.target.value)}
+            className="border p-2 rounded w-full"
+          />
+          <input
+            type="password"
+            placeholder="Şifre"
+            value={sifre}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setSifre(e.target.value)}
+            className="border p-2 rounded w-full"
+          />
+          <button
+            className="bg-green-600 text-white py-2 rounded hover:bg-green-700 w-full"
+          >
+            Kaydol
+          </button>
+        </form>
+      </div>
     </div>
   );
 }

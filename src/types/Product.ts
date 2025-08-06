@@ -9,4 +9,5 @@ export interface Urun {
   altKategori?: string;
   altKategoriId?: string;
   adet?: number;
+  renk?: string;
 }

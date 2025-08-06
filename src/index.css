@@ -12,3 +12,16 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+.truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2; /* 2 satır */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.product-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 4; /* 4 satır gibi davran */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  min-height: 80px; /* 4 satıra denk gelen yükseklik */
+}

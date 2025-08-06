@@ -198,31 +198,34 @@ export default function AdminPanel() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto p-6">
+    <div className="max-w-6xl mx-auto p-4 sm:p-6">
       <h1 className="text-2xl font-bold mb-4">Admin Paneli - Ürün Ekle</h1>
 
       {/* Ürün Ekleme Formu */}
-      <form onSubmit={urunEkle} className="grid grid-cols-1 gap-4 mb-8">
+      <form
+        onSubmit={urunEkle}
+        className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8"
+      >
         <input
           name="ad"
           value={form.ad}
           onChange={handleChange}
           placeholder="Ürün Adı"
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full"
         />
         <input
           name="aciklama"
           value={form.aciklama}
           onChange={handleChange}
           placeholder="Açıklama"
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full"
         />
         <input
           name="fiyat"
           value={form.fiyat}
           onChange={handleChange}
           placeholder="Fiyat (₺)"
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full"
           type="number"
         />
         <input
@@ -230,7 +233,7 @@ export default function AdminPanel() {
           value={form.gorsel}
           onChange={handleChange}
           placeholder="Görsel URL / Path"
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full"
         />
 
         {/* Kategori dropdown */}
@@ -238,7 +241,7 @@ export default function AdminPanel() {
           name="kategoriId"
           value={form.kategoriId}
           onChange={handleChange}
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full"
         >
           <option value="">Kategori Seç</option>
           {kategoriler.map((kat) => (
@@ -253,7 +256,7 @@ export default function AdminPanel() {
           name="altKategoriId"
           value={form.altKategoriId}
           onChange={handleChange}
-          className="border p-2 rounded"
+          className="border p-2 rounded w-full"
         >
           <option value="">Alt Kategori Seç</option>
           {altKategoriler.map((alt) => (
@@ -263,17 +266,17 @@ export default function AdminPanel() {
           ))}
         </select>
 
-        <button className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700">
+        <button className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 w-full sm:col-span-2">
           {duzenlenenUrunId ? "Güncelle" : "Ürünü Ekle"}
         </button>
       </form>
 
       {/* Filtreler */}
-      <div className="flex flex-wrap gap-4 mb-6">
+      <div className="flex flex-col sm:flex-row flex-wrap gap-4 mb-6">
         <select
           value={aktifKategoriId}
           onChange={(e) => setAktifKategoriId(e.target.value)}
-          className="border px-3 py-1 rounded"
+          className="border px-3 py-1 rounded w-full sm:w-auto"
         >
           <option value="tumu">Tüm Kategoriler</option>
           {kategoriler.map((kat) => (
@@ -286,7 +289,7 @@ export default function AdminPanel() {
         <select
           value={sirala}
           onChange={(e) => setSirala(e.target.value)}
-          className="border px-3 py-1 rounded"
+          className="border px-3 py-1 rounded w-full sm:w-auto"
         >
           <option value="varsayilan">Sıralama</option>
           <option value="artan">Fiyat: Artan</option>
@@ -298,7 +301,7 @@ export default function AdminPanel() {
           value={aramaTerimi}
           onChange={(e) => setAramaTerimi(e.target.value)}
           placeholder="Ürün ara..."
-          className="border px-3 py-2 rounded w-full sm:w-1/2"
+          className="border px-3 py-2 rounded w-full sm:flex-1"
         />
 
         <button
@@ -307,7 +310,7 @@ export default function AdminPanel() {
             setSirala("varsayilan");
             setAramaTerimi("");
           }}
-          className="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400"
+          className="bg-gray-300 px-3 py-1 rounded hover:bg-gray-400 w-full sm:w-auto"
         >
           Temizle
         </button>
@@ -360,7 +363,7 @@ export default function AdminPanel() {
           cikisYap();
           navigate("/");
         }}
-        className="bg-red-500 text-white py-2 px-4 rounded mt-4"
+        className="bg-red-500 text-white py-2 px-4 rounded mt-4 w-full sm:w-auto"
       >
         Çıkış Yap
       </button>
