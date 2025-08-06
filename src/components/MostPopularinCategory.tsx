@@ -3,6 +3,7 @@ import { Urun } from "../types/Product";
 import { FaChevronLeft, FaChevronRight } from "react-icons/fa";
 import { db } from "../firebase";
 import { collection, getDocs, query, where } from "firebase/firestore";
+import { Link } from "react-router-dom";
 
 interface Props {
   kategori?: string;
@@ -76,6 +77,7 @@ export default function MostPopulerCategory({ kategori, altKategori }: Props) {
             className="flex gap-4 overflow-x-auto pb-2 scroll-smooth no-scrollbar"
           >
             {urunler.map((urun) => (
+              <Link to={`/urun/${urun.id}`}>
               <div
                 key={urun.id}
                 className="flex-shrink-0 min-w-[150px] sm:min-w-[200px] md:min-w-[220px] lg:min-w-[250px] border rounded-lg p-3 bg-white hover:shadow-md transition"
@@ -89,7 +91,7 @@ export default function MostPopulerCategory({ kategori, altKategori }: Props) {
                 <div className="text-blue-600 font-bold mt-1">
                   {urun.fiyat?.toLocaleString("tr-TR")} TL
                 </div>
-              </div>
+              </div></Link>
             ))}
           </div>
 

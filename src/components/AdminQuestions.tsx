@@ -7,18 +7,19 @@ import {
   where,
   doc,
   updateDoc,
-  getDoc
+  getDoc,
+  or
 } from "firebase/firestore";
 import { useAuth } from "../context/AuthContext";
 
 interface Soru {
   id: string;
   urunId: string;
-  satici: string;
+  saticiAd: string;
   soru: string;
-  cevap?: string;
+  cevap?: string | null;
   kullaniciAd: string;
-  tarih: number;
+  tarih: any;
 }
 
 interface Urun {
@@ -33,14 +34,13 @@ export default function AdminSorular() {
   const [cevaplar, setCevaplar] = useState<Record<string, string>>({});
   const [urunBilgileri, setUrunBilgileri] = useState<Record<string, Urun>>({});
 
-  // 🔹 Cevaplanmamış soruları getir
   const sorulariGetir = async () => {
     const qSoru = query(
       collection(db, "sorular"),
-      where("cevap", "==", "")
+      or(where("cevap", "==", ""), where("cevap", "==", null))
     );
-    const snap = await getDocs(qSoru);
 
+    const snap = await getDocs(qSoru);
     const liste: Soru[] = snap.docs.map((d) => ({
       id: d.id,
       ...(d.data() as Omit<Soru, "id">)
@@ -48,19 +48,18 @@ export default function AdminSorular() {
 
     setSorular(liste);
 
-    // 🔹 Her soru için ürün bilgilerini çek
     const urunMap: Record<string, Urun> = {};
     for (const s of liste) {
       if (!urunMap[s.urunId]) {
         const urunRef = doc(db, "urunler", s.urunId);
         const urunSnap = await getDoc(urunRef);
         if (urunSnap.exists()) {
-            const { id: _ignore, ...rest } = urunSnap.data() as Urun; // id varsa yok say
-            urunMap[s.urunId] = {
-                id: urunSnap.id,
-                ...rest
-            };
-            }
+          const { id: _ignore, ...rest } = urunSnap.data() as Urun;
+          urunMap[s.urunId] = {
+            id: urunSnap.id,
+            ...rest
+          };
+        }
       }
     }
     setUrunBilgileri(urunMap);
@@ -72,18 +71,20 @@ export default function AdminSorular() {
     }
   }, [kullanici]);
 
-  // 🔹 Cevap gönder
   const cevapla = async (soruId: string) => {
     const cevap = cevaplar[soruId];
     if (!cevap || cevap.trim() === "") return alert("Cevap yazınız.");
 
     const soruRef = doc(db, "sorular", soruId);
-    await updateDoc(soruRef, {
-      cevap
-    });
+    await updateDoc(soruRef, { cevap });
 
-    // Güncel listeyi çek
-    sorulariGetir();
+    // 🔹 Ekranı anında güncelle
+    setSorular((prev) => prev.filter((s) => s.id !== soruId));
+    setCevaplar((prev) => {
+      const yeni = { ...prev };
+      delete yeni[soruId];
+      return yeni;
+    });
   };
 
   if (kullanici?.rol !== "admin") {
@@ -103,7 +104,6 @@ export default function AdminSorular() {
               key={soru.id}
               className="bg-white border rounded-lg p-4 shadow-sm"
             >
-              {/* Ürün bilgisi */}
               <div className="flex items-center gap-4 mb-3">
                 {urunBilgileri[soru.urunId]?.gorsel && (
                   <img
@@ -117,18 +117,16 @@ export default function AdminSorular() {
                     {urunBilgileri[soru.urunId]?.ad || "Ürün Bilgisi Yok"}
                   </p>
                   <p className="text-sm text-gray-500">
-                    Satıcı: {soru.satici}
+                    Satıcı: {soru.saticiAd}
                   </p>
                 </div>
               </div>
 
-              {/* Soru metni */}
               <p className="mb-2">
                 <span className="font-semibold">{soru.kullaniciAd}:</span>{" "}
                 {soru.soru}
               </p>
 
-              {/* Cevap alanı */}
               <textarea
                 value={cevaplar[soru.id] || ""}
                 onChange={(e) =>

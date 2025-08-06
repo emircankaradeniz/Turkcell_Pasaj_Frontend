@@ -39,11 +39,13 @@ interface Yorum {
 // 🔹 Satıcı tipi
 interface Satici {
   ad: string;
-  puan: number;
+  fiyat: number;
   kargo: string;
+  puan: number;
   ucretsizKargo: boolean;
   etiket: string;
 }
+
 
 export default function AdminPanel() {
   const [urunler, setUrunler] = useState<Urun[]>([]);
@@ -142,15 +144,27 @@ export default function AdminPanel() {
 
   // 🔹 Satıcı seçim toggle
   const handleSaticiSec = (ad: string) => {
-    const secili = saticilar.find((s) => s.ad === ad);
-    if (!secili) return;
+  const secili = saticilar.find((s) => s.ad === ad);
+  if (!secili) return;
 
-    if (seciliSaticilar.some((s) => s.ad === ad)) {
-      setSeciliSaticilar(seciliSaticilar.filter((s) => s.ad !== ad));
-    } else {
-      setSeciliSaticilar([...seciliSaticilar, secili]);
-    }
-  };
+  const varMi = seciliSaticilar.find((s) => s.ad === ad);
+  if (varMi) {
+    setSeciliSaticilar(seciliSaticilar.filter((s) => s.ad !== ad));
+  } else {
+    setSeciliSaticilar([
+      ...seciliSaticilar,
+      {
+        ad,
+        fiyat: 0,
+        kargo: "",
+        puan: 0,
+        ucretsizKargo: false,
+        etiket: ""
+      }
+    ]);
+  }
+};
+
 
   // 🔹 Ürün ekleme / güncelleme
   const urunEkle = async (e: FormEvent) => {
@@ -253,6 +267,29 @@ export default function AdminPanel() {
     navigate("/giris");
     return null;
   }
+  // 🔹 Filtreleme
+  let filtrelenmisUrunler = urunler
+    .filter(
+      (u) => aktifKategoriId === "tumu" || u.kategoriId === aktifKategoriId
+    )
+    .filter((u) =>
+      u.ad.toLowerCase().includes(aramaTerimi.toLowerCase())
+    );
+
+  if (sirala === "artan") {
+    filtrelenmisUrunler.sort((a, b) => a.fiyat - b.fiyat);
+  } else if (sirala === "azalan") {
+    filtrelenmisUrunler.sort((a, b) => b.fiyat - a.fiyat);
+  }
+
+    toplamUrunSayisi > 0
+      ? (toplamFiyat / toplamUrunSayisi).toFixed(2)
+      : "0";
+
+  if (!kullanici) {
+    navigate("/giris");
+    return null;
+  }
 
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6">
@@ -343,6 +380,76 @@ export default function AdminPanel() {
             ))}
           </div>
         </div>
+        {/* Seçilen satıcılar detaylı bilgi girişi */}
+        <div className="sm:col-span-2 border p-3 rounded mt-4">
+          <h3 className="font-semibold mb-2">Seçilen Satıcı Bilgileri</h3>
+          <div className="space-y-4">
+            {seciliSaticilar.map((satici, index) => (
+              <div key={index} className="border rounded p-3 bg-gray-50">
+                <h4 className="font-semibold mb-2">{satici.ad}</h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <input
+                    type="number"
+                    placeholder="Fiyat (₺)"
+                    value={satici.fiyat === 0 ? "" : satici.fiyat.toString()}
+                    onChange={(e) => {
+                      const yeni = [...seciliSaticilar];
+                      yeni[index].fiyat = Number(e.target.value);
+                      setSeciliSaticilar(yeni);
+                    }}
+                    className="border p-2 rounded w-full"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Kargo Süresi"
+                    value={satici.kargo}
+                    onChange={(e) => {
+                      const yeni = [...seciliSaticilar];
+                      yeni[index].kargo = e.target.value;
+                      setSeciliSaticilar(yeni);
+                    }}
+                    className="border p-2 rounded"
+                  />
+                  <input
+                    type="number"
+                    placeholder="Puan (0-10)"
+                    value={satici.puan === 0 ? "" : satici.puan.toString()}
+                    onChange={(e) => {
+                      const yeni = [...seciliSaticilar];
+                      yeni[index].puan = Number(e.target.value);
+                      setSeciliSaticilar(yeni);
+                    }}
+                    className="border p-2 rounded"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Etiket (örn: Başarılı Satıcı)"
+                    value={satici.etiket}
+                    onChange={(e) => {
+                      const yeni = [...seciliSaticilar];
+                      yeni[index].etiket = e.target.value;
+                      setSeciliSaticilar(yeni);
+                    }}
+                    className="border p-2 rounded"
+                  />
+                  <label className="flex items-center space-x-2">
+                    <input
+                      type="checkbox"
+                      checked={satici.ucretsizKargo}
+                      onChange={(e) => {
+                        const yeni = [...seciliSaticilar];
+                        yeni[index].ucretsizKargo = e.target.checked;
+                        setSeciliSaticilar(yeni);
+                      }}
+                    />
+                    <span>Ücretsiz Kargo</span>
+                  </label>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
 
         {/* Özellikler */}
         <div className="sm:col-span-2 border p-3 rounded">
@@ -403,6 +510,28 @@ export default function AdminPanel() {
           {duzenlenenUrunId ? "Güncelle" : "Ürünü Ekle"}
         </button>
       </form>
+      {/* Ürün listesi */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+        {filtrelenmisUrunler.map((urun) => (
+          <div key={urun.id} className="relative">
+            <UrunCard urun={urun} showSepetButonu={false} showFavori={false} />
+            <div className="absolute top-2 right-2 flex gap-2">
+              <button
+                onClick={() => urunDuzenle(urun)}
+                className="bg-yellow-500 text-white px-2 py-1 rounded text-xs"
+              >
+                Düzenle
+              </button>
+              <button
+                onClick={() => urunSil(urun.id)}
+                className="bg-red-600 text-white px-2 py-1 rounded text-xs"
+              >
+                Sil
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
       <AdminSorular/>
             
     </div>

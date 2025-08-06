@@ -132,32 +132,6 @@ export default function UrunDetay() {
         </div>
       )}
 
-      {/* Yorum Formu */}
-      <div className="bg-gray-50 rounded-lg p-4 sm:p-6 shadow mt-10">
-        <h3 className="text-base sm:text-lg font-semibold mb-3">Yorum Yap</h3>
-        <form onSubmit={yorumEkle} className="grid grid-cols-1 gap-3">
-          <input type="text" placeholder="Adınız" value={yeniYorum.kullanici} onChange={(e) => setYeniYorum({ ...yeniYorum, kullanici: e.target.value })} className="border px-3 py-2 rounded w-full" />
-          <textarea placeholder="Yorumunuz" value={yeniYorum.yorum} onChange={(e) => setYeniYorum({ ...yeniYorum, yorum: e.target.value })} className="border px-3 py-2 rounded w-full" rows={3} />
-          <button type="submit" className="bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Gönder</button>
-        </form>
-      </div>
-
-      {/* Yorumlar */}
-      {yorumlar.length > 0 && (
-        <div className="mt-6">
-          <h3 className="text-base sm:text-lg font-semibold mb-3">Yorumlar ({yorumlar.length})</h3>
-          <ul className="space-y-4">
-            {yorumlar.map((y, i) => (
-              <li key={i} className="bg-white p-3 rounded shadow border">
-                <p className="font-semibold">{y.kullanici}</p>
-                <p className="text-xs sm:text-sm text-gray-600">{new Date(y.tarih).toLocaleString("tr-TR")}</p>
-                <p className="mt-1">{y.yorum}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
-
       {/* Satıcılar */}
       {urun.saticilar && urun.saticilar.length > 0 && (
         <SaticiListesi saticilar={urun.saticilar} urun={urun} />
