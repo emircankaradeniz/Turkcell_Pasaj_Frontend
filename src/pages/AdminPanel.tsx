@@ -291,6 +291,12 @@ export default function AdminPanel() {
     return null;
   }
 
+  const [tumunuGoster, setTumunuGoster] = useState(false);
+  const goruntulenecekUrunler = tumunuGoster
+  ? filtrelenmisUrunler
+  : filtrelenmisUrunler.slice(0, 6);
+
+
   return (
     <div className="max-w-6xl mx-auto p-4 sm:p-6">
       <h1 className="text-2xl font-bold mb-4">Admin Paneli - Ürün Ekle</h1>
@@ -512,7 +518,7 @@ export default function AdminPanel() {
       </form>
       {/* Ürün listesi */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-        {filtrelenmisUrunler.map((urun) => (
+        {goruntulenecekUrunler.map((urun) => (
           <div key={urun.id} className="relative">
             <UrunCard urun={urun} showSepetButonu={false} showFavori={false} />
             <div className="absolute top-2 right-2 flex gap-2">
@@ -532,6 +538,18 @@ export default function AdminPanel() {
           </div>
         ))}
       </div>
+      {filtrelenmisUrunler.length > 8 && (
+        <div className="text-center mt-4">
+          <button
+            onClick={() => setTumunuGoster(!tumunuGoster)}
+            className="bg-blue-600 text-white px-4 py-2 rounded"
+          >
+            {tumunuGoster ? "Daha Az Göster" : "Tümünü Göster"}
+          </button>
+        </div>
+      )}
+
+
       <AdminSorular/>
             
     </div>
