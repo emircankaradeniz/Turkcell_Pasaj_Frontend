@@ -12,6 +12,7 @@ import SearchResults from "./pages/SearchResults";
 import AccountPage from "./pages/AccountPage";
 import SignUp from "./pages/SignUp";
 import Footer from "./components/Footer";
+import ScrollToTop from "./components/ScrollToTop";
 
 // Context'ler
 import { AuthProvider } from "./context/AuthContext";
@@ -28,6 +29,7 @@ function App(): React.JSX.Element {
           {/* 🔹 Kullanıcıya göre sepet */}
           <SepetProvider>
             <Navbar />
+            <ScrollToTop />
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/urun/:id" element={<UrunDetay />} />

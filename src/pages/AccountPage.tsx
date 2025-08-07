@@ -218,6 +218,14 @@ export default function HesapSayfasi() {
             >
               Çıkış Yap
             </button>
+            {kullanici?.rol === "admin" && (
+              <button
+                onClick={() => navigate("/admin-panel")}
+                className="bg-gray-800 text-white px-6 py-2 rounded hover:bg-gray-900 w-full sm:w-auto"
+              >
+                Admin Panel
+              </button>
+            )}
           </div>
         </div>
       </div>
