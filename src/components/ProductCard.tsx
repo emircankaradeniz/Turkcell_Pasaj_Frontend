@@ -40,6 +40,7 @@ export default function UrunCard({
         {/* Favori butonu */}
         {showFavori && (
           <button
+            data-testid="favori-btn"
             onClick={toggleFavori}
             className="absolute top-2 right-2 text-red-600 text-lg sm:text-xl"
           >

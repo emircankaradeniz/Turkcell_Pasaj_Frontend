@@ -1,3 +1,4 @@
+// src/components/Categories.tsx
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Urun } from "../types/Product";
@@ -14,14 +15,20 @@ const kategoriler = [
   { baslik: "Ev-Yaşam", altKategoriler: ["Spor Ürünleri", "Bebek & Çocuk", "Akıllı Ev Çözümleri", "Pet Shop", "Epilatörler & IPL Cihazları", "Çanta & Valiz", "Araç Çözümleri", "Yapı Market Ürünleri", "Ofis Malzemeleri", "Akıllı & İlginç Ürünler", "Kadınların Elinden Ürünleri"] },
 ];
 
-export default function Kategoriler() {
+type Props = { initialUrunler?: Urun[] };
+
+export default function Kategoriler({ initialUrunler }: Props) {
   const [acilan, setAcilan] = useState<string | null>(null);
   const [aktifAlt, setAktifAlt] = useState<string | null>(null);
   const [urunler, setUrunler] = useState<Urun[]>([]);
   const isDesktop = typeof window !== "undefined" && window.innerWidth >= 1024;
 
-  // Firestore'dan ürünleri çek
+  // Firestore'dan ürünleri çek (veya testten geleni kullan)
   useEffect(() => {
+    if (initialUrunler && initialUrunler.length) {
+      setUrunler(initialUrunler);
+      return;
+    }
     const urunleriGetir = async () => {
       const snap = await getDocs(collection(db, "urunler"));
       const data: Urun[] = snap.docs.map((doc) => ({
@@ -31,7 +38,7 @@ export default function Kategoriler() {
       setUrunler(data);
     };
     urunleriGetir();
-  }, []);
+  }, [initialUrunler]);
 
   return (
     <div
@@ -44,7 +51,10 @@ export default function Kategoriler() {
       }}
     >
       {/* Üst kategori barı */}
-      <div className="flex gap-6 overflow-x-auto whitespace-nowrap border-y py-2">
+      <div
+        data-testid="kategori-nav"
+        className="flex gap-6 overflow-x-auto whitespace-nowrap border-y py-2"
+      >
         {kategoriler.map((kat, i) => (
           <Link
             to={`/kategori?kategori=${encodeURIComponent(kat.baslik)}`}
@@ -66,7 +76,10 @@ export default function Kategoriler() {
 
       {/* Genişleyen panel (sadece masaüstünde gösterilecek) */}
       {isDesktop && acilan && (
-        <div className="absolute left-0 w-full z-50 bg-white border-t shadow-md transition-all duration-300">
+        <div
+          data-testid="kategori-panel"
+          className="absolute left-0 w-full z-50 bg-white border-t shadow-md transition-all duration-300"
+        >
           <div className="grid grid-cols-4 gap-6 p-6">
             {/* Sol: Alt Kategoriler */}
             <div className="col-span-1">
@@ -84,6 +97,7 @@ export default function Kategoriler() {
                       }}
                     >
                       <Link
+                        data-testid={`alt-${alt.toLowerCase().replace(/\s+/g, "-")}`}
                         to={`/kategori?altKategori=${encodeURIComponent(alt)}`}
                       >
                         {alt}
@@ -98,10 +112,13 @@ export default function Kategoriler() {
               {(aktifAlt
                 ? urunler.filter(
                     (u) =>
-                      u.altKategori?.toLowerCase() === aktifAlt.toLowerCase()
+                      (u.altKategori ?? "").toLowerCase() ===
+                      (aktifAlt ?? "").toLowerCase()
                   )
                 : urunler.filter(
-                    (u) => u.kategori?.toLowerCase() === acilan.toLowerCase()
+                    (u) =>
+                      (u.kategori ?? "").toLowerCase() ===
+                      (acilan ?? "").toLowerCase()
                   )
               )
                 .slice(0, 2)

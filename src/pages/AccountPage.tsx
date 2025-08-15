@@ -47,6 +47,7 @@ export default function HesapSayfasi() {
           setMeslek(data.meslek || "");
           setTelefon(data.telefon || "");
           setIzinVer(data.izinVer ?? false);
+          setEmail(data.email ?? (kullanici?.email || ""));
         }
       } catch (err) {
         console.error("Kullanıcı bilgileri alınamadı:", err);
@@ -75,7 +76,9 @@ export default function HesapSayfasi() {
         },
         { merge: true }
       );
-      alert("Bilgiler kaydedildi!");
+      if (typeof window !== "undefined" && typeof window.alert === "function") {
+        window.alert("Bilgiler kaydedildi!");
+      }
     } catch (err) {
       console.error("Kayıt hatası:", err);
     }
@@ -146,12 +149,14 @@ export default function HesapSayfasi() {
                 className="border rounded px-3 py-2 w-full"
                 value={ad}
                 onChange={(e) => setAd(e.target.value)}
+                onInput={(e) => setAd((e.target as HTMLInputElement).value)}
                 placeholder="Ad"
               />
               <input
                 className="border rounded px-3 py-2 w-full"
                 value={soyad}
                 onChange={(e) => setSoyad(e.target.value)}
+                onInput={(e) => setSoyad((e.target as HTMLInputElement).value)}
                 placeholder="Soyad"
               />
               <input
@@ -159,6 +164,7 @@ export default function HesapSayfasi() {
                 type="date"
                 value={dogumTarihi}
                 onChange={(e) => setDogumTarihi(e.target.value)}
+                onInput={(e) => setDogumTarihi((e.target as HTMLInputElement).value)}
               />
               <select
                 className="border rounded px-3 py-2 w-full"
@@ -182,12 +188,14 @@ export default function HesapSayfasi() {
                 className="border rounded px-3 py-2 w-full"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onInput={(e) => setEmail((e.target as HTMLInputElement).value)}
                 placeholder="E-posta Adresi"
               />
               <input
                 className="border rounded px-3 py-2 w-full"
                 value={telefon}
                 onChange={(e) => setTelefon(e.target.value)}
+                onInput={(e) => setTelefon((e.target as HTMLInputElement).value)}
                 placeholder="Telefon Numarası"
               />
             </div>

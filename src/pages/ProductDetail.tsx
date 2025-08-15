@@ -96,7 +96,7 @@ export default function UrunDetay() {
         {/* Bilgiler */}
         <div className="flex flex-col justify-between">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold">{urun.ad}</h1>
+            <h1 data-testid="product-title" className="text-2xl sm:text-3xl font-bold">{urun.ad}</h1>
             <p className="text-yellow-500 mt-1 text-sm sm:text-base">⭐⭐⭐⭐⭐ 4.6</p>
 
             {/* Renk */}
@@ -116,7 +116,7 @@ export default function UrunDetay() {
           </div>
 
           {/* Sepete Ekle */}
-          <button onClick={() => sepeteEkle(urun)} className="mt-6 bg-yellow-400 hover:bg-yellow-500 text-black py-3 rounded-lg text-base sm:text-lg font-bold w-full">
+          <button data-testid="add-to-cart-btn" onClick={() => sepeteEkle(urun)} className="mt-6 bg-yellow-400 hover:bg-yellow-500 text-black py-3 rounded-lg text-base sm:text-lg font-bold w-full">
             Sepete Ekle
           </button>
         </div>

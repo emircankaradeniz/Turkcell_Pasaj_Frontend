@@ -73,6 +73,7 @@ export default function SonIncelenenler() {
             >
               {/* Favori Butonu */}
               <button
+                data-testid="fav-btn"
                 onClick={() => favoriEkleCikar(urun)}
                 className="absolute top-2 right-2 z-10 text-red-500 hover:scale-110 transition"
               >

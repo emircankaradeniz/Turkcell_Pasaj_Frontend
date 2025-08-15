@@ -32,7 +32,7 @@ export default function EnIyiTeklifler() {
       <h2 className="text-2xl font-bold mb-6 px-4">En İyi Teklifler</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6 px-2 sm:px-4">
         {teklifler.map((urun) => {
-          const favorideMi = favoriler.some((f) => f.id === urun.id);
+          const favorideMi = (favoriler ?? []).some((f) => f.id === urun.id);
           return (
             <div
               key={urun.id}

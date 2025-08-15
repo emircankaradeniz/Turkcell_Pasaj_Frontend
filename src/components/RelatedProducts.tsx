@@ -21,10 +21,13 @@ export default function IlginiziCekebilir() {
   };
 
   useEffect(() => {
+    setLoading(true);
     if (favoriler.length === 0) {
-      setLoading(false);
-      return;
+      const t = setTimeout(() => setLoading(false), 0); // ← DEĞİŞTİR
+      setUrunler([]);                                   // (opsiyonel ama temiz)
+      return () => clearTimeout(t);                      // cleanup
     }
+
 
     const favoriKategoriler = [
       ...new Set(favoriler.map((u) => u.kategori).filter(Boolean)),
